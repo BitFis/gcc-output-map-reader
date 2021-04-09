@@ -10,6 +10,7 @@ import {
 } from "@material-ui/core";
 import Table from "./ui/Table";
 import { TabContext, TabPanel } from "@material-ui/lab";
+import OutputDrop from "./ui/OutputDrop";
 
 function a11yProps(index: number) {
   return {
@@ -40,6 +41,9 @@ const App: VFC = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           output.map viewer
         </Typography>
+
+        <OutputDrop />
+
         <TabContext value={value}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
