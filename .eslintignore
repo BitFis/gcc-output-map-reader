@@ -1,0 +1,5 @@
+node_modules
+build
+
+# ignore created files
+src/reportWebVitals.js
