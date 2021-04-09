@@ -29,10 +29,12 @@ jobs:
     - run: npm install
     - run: npm run build --if-present
     - run: npm test -- --watchAll=false
-    - name: GH Pages deploy
+    - name: Deploy as GH Page
       # You may pin to the exact commit or the version.
       # uses: Cecilapp/GitHub-Pages-deploy@f26df39a27b93cae2c6aac5e07fdc556e8770247
-      uses: Cecilapp/GitHub-Pages-deploy@3.1.0
+      uses: Cecilapp/GitHub-Pages-deploy@v3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         # A verified email.
         email: lucien@zuercher.io
