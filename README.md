@@ -2,6 +2,8 @@
 
 Onepager to view the map file like the [amap executable](http://www.sikorskiy.net/prj/amap/index.html).
 
+[Have a look at it here](https://bitfis.github.io/gcc-output-map-web-renderer).
+
 ## Available Scripts (react app)
 
 In the project directory, you can run:
