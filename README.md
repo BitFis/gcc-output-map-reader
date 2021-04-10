@@ -5,7 +5,7 @@
 
 > The parser is quite simplistic, any contributions are welcome. :heart:
 
-Onepager to view the map file like the [amap executable](http://www.sikorskiy.net/prj/amap/index.html).
+Onepager to view the map file like the [amap executable](http://www.sikorskiy.net/prj/amap/index.html) does.
 
 [Have a look at it here](https://bitfis.github.io/gcc-output-map-web-renderer).
 
