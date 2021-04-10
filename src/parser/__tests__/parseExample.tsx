@@ -3,7 +3,45 @@ import path from "path";
 import MapParser from "../MapParser";
 import expectedResult from "../../../examples/expected_a_hallo_cmake_sections.json";
 
+// changed, value of .init_array => issue parsing address without size
+import bigExpectedSections from "../../../examples/cmake_output_sections.json";
+
+test("test parse big output.map file", () => {
+  MapParser.TurnOnAMPEquality = true;
+  let fileBuffer = fs.readFileSync(
+    path.join(__dirname, "./../../../examples/", "cmake_output.map.p1")
+  );
+  let content = fileBuffer.toString("utf-8");
+  fileBuffer = fs.readFileSync(
+    path.join(__dirname, "./../../../examples/", "cmake_output.map.p2")
+  );
+  content += fileBuffer.toString("utf-8");
+
+  const parser = new MapParser();
+  parser.parse(content);
+
+  const sectionArray = Object.keys(parser.Sections).map(
+    (k) => parser.Sections[k]
+  );
+
+  expect(sectionArray.length).toBe(bigExpectedSections.length);
+
+  const a = sectionArray.sort((a, b) => ("" + a.Name).localeCompare(b.Name));
+  const b = bigExpectedSections.sort((a, b) =>
+    ("" + a[0]).localeCompare(b[0] + "")
+  );
+
+  // expect(a.flatMap((s) => [s.Name])).toEqual(b.flatMap((v) => v[0]));
+
+  expect(a.map((s) => [s.Name, s.NumRecords])).toEqual(
+    b.map((s) => [s[0], s[3]])
+  );
+});
+
 test("test parse hello-world example file to object", () => {
+  // cross check with amp.exe implementation results
+  MapParser.TurnOnAMPEquality = true;
+
   // const content = fs.readFileSync(path.join(__dirname, "./../../../examples/", "cmake_output.map"));
   const content = fs.readFileSync(
     // path.join(__dirname, "./../../../examples/", "cmake_output.map")
@@ -20,22 +58,21 @@ test("test parse hello-world example file to object", () => {
 
   expect(sectionArray.length).toBe(74);
 
-  let a = sectionArray.sort((a, b) => ("" + a.Name).localeCompare(b.Name));
-  let b = expectedResult.sort((a, b) => ("" + a[0]).localeCompare(b[0] + ""));
+  const a = sectionArray.sort((a, b) => ("" + a.Name).localeCompare(b.Name));
+  const b = expectedResult.sort((a, b) => ("" + a[0]).localeCompare(b[0] + ""));
 
   expect(a.flatMap((s) => [s.Name])).toEqual(b.flatMap((v) => v[0]));
 
   expect(sectionArray.length).toBe(expectedResult.length);
 
-  a = a.map((s) => [s.Name, s.NumRecords]);
-  b = b.map((s) => [s[0], s[3]]);
+  // current issue, amp.exe does not recognize all
+  expect(a.map((s) => [s.Name, s.NumRecords])).toEqual(
+    b.map((s) => [s[0], s[3]])
+  );
 
-  console.log(a);
-
-  return;
-
-  // WIP:
-  expect(a).toEqual(b);
+  // WIP: implement archive array
+  //const archiveArray = Object.keys(parser.Archives);
+  //expect(archiveArray.length).toBe(1);
 
   // check componenten number
 });
