@@ -6,11 +6,21 @@ import MapParser from "../parser/MapParser";
 
 function parseFile(files: FileList | null): Promise<ArrayBuffer> {
   if (files?.length === 1) {
-    return (files.item(0) as File).arrayBuffer().then((buffer: ArrayBuffer) => {
+    const file = files.item(0) as File;
+
+    return file.arrayBuffer().then((buffer: ArrayBuffer) => {
       // do things
       console.log("lets work on the file size: ", buffer.byteLength);
 
-      new MapParser(buffer).parser();
+      let content = "";
+      new Uint8Array(buffer).forEach((byte: number) => {
+        content += String.fromCharCode(byte);
+      });
+
+      const parser = new MapParser();
+      parser.parse(content);
+
+      console.log(Object.keys(parser.Sections));
 
       return buffer;
     });
