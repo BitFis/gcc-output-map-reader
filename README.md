@@ -46,7 +46,7 @@ opensource projects:
   - Full featured and well supported
   - [Blogpost guide](https://www.embeddedrelated.com/showarticle/900.php)
 - [pyelftool - python](https://github.com/eliben/pyelftools)
-  -  pyelftools is a pure-Python library for parsing and analyzing ELF files and DWARF debugging information.
+  - pyelftools is a pure-Python library for parsing and analyzing ELF files and DWARF debugging information.
 
 Some blogs about map files interpretations:
 
