@@ -12,6 +12,7 @@ import Table from "./ui/Table";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import OutputDrop from "./ui/OutputDrop";
 import MapParser from "./parser/MapParser";
+import { TCell } from "gridjs/dist/src/types";
 
 function a11yProps(index: number) {
   return {
@@ -41,9 +42,29 @@ type ByFilesTableColumns = {
 const ModulesTableColumnsOrder = [
   "Module",
   "Size no .bss",
-  "Size",
+  {
+    name: "Size",
+    formatter: (cell: TCell) => formatSize(cell as number),
+  },
   "Num of records",
 ];
+
+const formatSize = (size: number) => {
+  const all = size;
+  const B = size % 1000;
+  size -= B;
+  const KB = Math.floor((size / 1000) % 1000);
+  size -= KB;
+  const MB = Math.floor(size / 1000 / 1000);
+
+  if (MB > 0) {
+    return `${all} (${MB}M)`;
+  }
+  if (KB > 0) {
+    return `${all} (${KB}K)`;
+  }
+  return `${all}`;
+};
 
 type AllTableColumns = {
   Section: string;
@@ -60,7 +81,10 @@ const AllTableColumnsOrder = [
   "Section",
   "SubSection",
   "AddressHex",
-  "Size",
+  {
+    name: "Size",
+    formatter: (cell: TCell) => formatSize(cell as number),
+  },
   "Demangled Name",
   "Moduled Name",
   "File Name",
@@ -98,9 +122,15 @@ const App: VFC = () => {
   };
 
   const fillDatabase = (parser: MapParser) => {
-    const all = new DataTableArray<AllTableColumns>(AllTableColumnsOrder);
+    const all = new DataTableArray<AllTableColumns>(
+      AllTableColumnsOrder.map((c: any) => {
+        return c.name || c;
+      })
+    );
     const allModules = new DataTableArray<ModulesTableColumns>(
-      ModulesTableColumnsOrder
+      ModulesTableColumnsOrder.map((c: any) => {
+        return c.name || c;
+      })
     );
     // const byfiles = new
 
