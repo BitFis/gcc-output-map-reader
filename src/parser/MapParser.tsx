@@ -1,6 +1,7 @@
 interface SubSectionSpace {
   MangledName: string;
   AddressStart: number;
+  Size: number;
 }
 
 class SubSection {
@@ -13,14 +14,25 @@ class SubSection {
 
   public Name: string;
   public Mangled = "";
+  public FileName = "";
+  public Module = "";
 
   constructor(
     public Section: string, // Section name
     public FullName: string, // Subsection name
     public StartAddress: number, // Start address
     public Size: number, // Size of subsection
-    public FileName: string // Filename
+    public FullFileName: string // Filename
   ) {
+    // eslint-disable-next-line
+    const subModuleName = /([^\(]+)\(([^\)]+)/g.exec(FullFileName);
+    if (subModuleName) {
+      this.FileName = subModuleName[1] || FullFileName;
+      this.Module = subModuleName[2] || "";
+    } else {
+      this.FileName = FullFileName;
+    }
+
     // eslint-disable-next-line
     const subSectionSplit = /(\.[^\.]+)(.*)/g.exec(FullName);
     if (subSectionSplit) {
@@ -63,6 +75,9 @@ class SubSection {
     let match;
     let counter = 0;
     let dontCountAnyFollowUp = false;
+    // used to calculate size
+    let lastAddress = 0;
+    let totalInnerSize = 0;
 
     while ((match = SUBSECTION_CONTENT.exec(subsection_content)) != null) {
       const identifier = match[1];
@@ -88,10 +103,19 @@ class SubSection {
           // check if address or size
           if (addressStart.length == MapParser.ADDRESS_HEX_LENGTH) {
             // it is an actual address space
+            const address = parseInt(addressStart, 16);
+            let size = 0;
+            if (this.MangledList.length > 0) {
+              size = address - lastAddress;
+            }
+            address - lastAddress;
             this.MangledList.push({
               AddressStart: parseInt(addressStart, 16),
               MangledName: mangaledName,
+              Size: size,
             });
+            lastAddress = address;
+            totalInnerSize += size;
 
             // used for amax.exe
             if (!dontCountAnyFollowUp) {
@@ -122,6 +146,11 @@ class SubSection {
       }
 
       // check valid address space
+    }
+
+    // set size of first element
+    if (this.MangledList.length > 0) {
+      this.MangledList[0].Size = this.Size - totalInnerSize;
     }
 
     return counter;
@@ -290,6 +319,7 @@ class MapParser {
       );
     }
 
+    const key = `${match[1]}`;
     const Archive = {
       CompilationUnit: match[3],
       FileLocation: match[1],
@@ -297,16 +327,16 @@ class MapParser {
       SymbolCall: match[4],
     };
 
-    if (!this.Archives[Archive.FileLocation]) {
-      this.Archives[Archive.FileLocation] = {
+    if (!this.Archives[key]) {
+      this.Archives[key] = {
         Archives: [],
         File: Archive.FileLocation,
         NumRecords: 0,
       };
     }
 
-    this.Archives[Archive.FileLocation].NumRecords++;
-    this.Archives[Archive.FileLocation].Archives.push(Archive);
+    this.Archives[key].NumRecords++;
+    this.Archives[key].Archives.push(Archive);
   }
 
   private parseSectionMatch(match: RegExpExecArray, regex: RegExp) {

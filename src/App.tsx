@@ -29,10 +29,27 @@ const TableSkeleton: VFC = () => {
   );
 };
 
+type ModulesTableColumns = {
+  Module: string;
+  "Size no .bss": number;
+  Size: number;
+  "Num of records": number;
+};
+type ByFilesTableColumns = {
+  File: string;
+} & ModulesTableColumns;
+const ModulesTableColumnsOrder = [
+  "Module",
+  "Size no .bss",
+  "Size",
+  "Num of records",
+];
+
 type AllTableColumns = {
   Section: string;
   SubSection: string;
   Address: number;
+  AddressHex: string;
   Size: number;
   "Demangled Name": string;
   "Moduled Name": string;
@@ -42,7 +59,7 @@ type AllTableColumns = {
 const AllTableColumnsOrder = [
   "Section",
   "SubSection",
-  "Address",
+  "AddressHex",
   "Size",
   "Demangled Name",
   "Moduled Name",
@@ -55,28 +72,57 @@ type TableContentType = string | number;
 class DataTableArray<T extends Record<string, TableContentType>> {
   Items: TableContentType[][] = [];
 
+  constructor(public ColumnsOrder: string[]) {}
+
   add(insert: T) {
     const sorted: TableContentType[] = [];
-    AllTableColumnsOrder.forEach((c) => {
+    this.ColumnsOrder.forEach((c) => {
       sorted.push(insert[c]);
     });
     this.Items.push(sorted);
   }
 }
 
+const formatToHex = (number: number) => {
+  return "0x" + `0000000000000000${number.toString(16)}`.slice(-16);
+};
+
 const App: VFC = () => {
   const [value, setValue] = useState("all");
 
   const [allData, setAllData] = useState<TableContentType[][]>([]);
+  const [allModules, setAllModules] = useState<TableContentType[][]>([]);
 
   const handleChange = (_event: SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
 
   const fillDatabase = (parser: MapParser) => {
-    const all = new DataTableArray<AllTableColumns>();
-    // fill all
+    const all = new DataTableArray<AllTableColumns>(AllTableColumnsOrder);
+    const allModules = new DataTableArray<ModulesTableColumns>(
+      ModulesTableColumnsOrder
+    );
+    // const byfiles = new
 
+    const notPartOfArchive: ModulesTableColumns = {
+      "Num of records": 0,
+      "Size no .bss": -1,
+      Module: "",
+      Size: 0,
+    };
+    const Archives: { [key: string]: ByFilesTableColumns } = {};
+    Object.keys(parser.Archives).forEach((k) => {
+      console.log("key", k);
+      Archives[k] = {
+        "Num of records": 0,
+        "Size no .bss": -1,
+        Module: k,
+        Size: 0,
+        File: parser.Archives[k].File,
+      };
+    });
+
+    // fill all view data
     // Wip fill module / archive categorisation
     Object.keys(parser.Sections).forEach((sectionKey) => {
       parser.Sections[sectionKey].SubSectionsList.forEach((subSections) => {
@@ -85,40 +131,60 @@ const App: VFC = () => {
           "File Name": subSections.FileName,
           "Mandled Name": subSections.Mangled.replace(/$\.(text|data)/g, ""),
           Address: subSections.StartAddress,
+          AddressHex: formatToHex(subSections.StartAddress),
           Section: subSections.Section,
           SubSection: subSections.Name,
           Size: subSections.Size,
           "Moduled Name": "",
         };
 
+        // WIP, move to parsing process??
+        // select archive for process
+        let partOfModule: ModulesTableColumns = Archives[subSections.FileName];
+        console.log(subSections.FileName);
+        if (!partOfModule) {
+          partOfModule = notPartOfArchive;
+        }
+
+        partOfModule.Size += subSections.Size;
+
         if (subSections.MangledList.length > 0) {
           subSections.MangledList.forEach((mangled) => {
             insert["Mandled Name"] = mangled.MangledName;
-            insert.Size = insert.Address;
+            insert.Size = mangled.Size;
+
             insert.Address = mangled.AddressStart;
+            insert.AddressHex = formatToHex(mangled.AddressStart);
             all.add(insert);
+
+            if (mangled.Size > 0) {
+              partOfModule["Num of records"]++;
+            }
           });
-          // insert mangled info
         } else {
+          if (subSections.Size > 0) {
+            partOfModule["Num of records"]++;
+          }
+
           all.add(insert);
         }
       });
     });
 
-    all.add({
-      Address: 318,
-      Size: 28,
-      SubSection: ".interopt",
-      Section: ".interopt",
-      "Demangled Name": "",
-      "Moduled Name": "",
-      "File Name":
-        "/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/Scrt1.o",
-      "Mandled Name": "",
+    allModules.add(notPartOfArchive);
+    Object.keys(Archives).forEach((key) => {
+      // modules.add(Archives[key]) => byFile
+      allModules.add({
+        "Num of records": Archives[key]["Num of records"],
+        "Size no .bss": Archives[key]["Size no .bss"],
+        Module: Archives[key].Module,
+        Size: Archives[key].Size,
+      });
     });
 
     //console.log("res ...", parser.Archives);
     setAllData(all.Items);
+    setAllModules(allModules.Items);
   };
 
   return (
@@ -137,12 +203,8 @@ const App: VFC = () => {
               onChange={handleChange}
               aria-label="basic tabs example"
             >
-              <Tab label="All (DEMO)" value="all" {...a11yProps(0)} />
-              <Tab
-                label="By Module (WIP)"
-                value="by_module"
-                {...a11yProps(1)}
-              />
+              <Tab label="All" value="all" {...a11yProps(0)} />
+              <Tab label="By Module" value="by_module" {...a11yProps(1)} />
               <Tab label="By File (WIP)" value="by_file" {...a11yProps(2)} />
               <Tab
                 label="By Section (WIP)"
@@ -160,7 +222,7 @@ const App: VFC = () => {
             <Table data={allData} columns={AllTableColumnsOrder} />
           </TabPanel>
           <TabPanel value="by_module">
-            <TableSkeleton />
+            <Table data={allModules} columns={ModulesTableColumnsOrder} />
           </TabPanel>
           <TabPanel value="by_file">
             <TableSkeleton />
