@@ -123,6 +123,12 @@ interface Archive {
   SymbolCall: string;
 }
 
+interface ArchiveFile {
+  File: string;
+  NumRecords: number;
+  Archives: Archive[];
+}
+
 class Section {
   public NumRecords = 0;
   // calculated length of address space to next sector
@@ -203,7 +209,11 @@ class Section {
   }
 }
 
-type SegmentParseFunction = (match: RegExpExecArray, regex: RegExp) => void;
+type SegmentParseFunction = (
+  match: RegExpExecArray,
+  regex: RegExp,
+  mapParser: MapParser
+) => void;
 
 interface SegmentInfo {
   Regex: RegExp;
@@ -255,10 +265,10 @@ class MapParser {
     [key: string]: Section;
   } = {};
   public Archives: {
-    [CompilationUnit: string]: Archive;
+    [ArchiveFile: string]: ArchiveFile;
   } = {};
 
-  private parseArchiveMatch(match: RegExpExecArray) {
+  private parseArchiveMatch(match: RegExpExecArray, regex: RegExp) {
     if (match.length < 4) {
       console.log(
         `Unexpected parsing at character ${match.index} - ${regex.lastIndex}`,
@@ -266,12 +276,23 @@ class MapParser {
       );
     }
 
-    this.Archives[match[2]] = {
+    const Archive = {
       CompilationUnit: match[3],
       FileLocation: match[1],
       Symbol: match[2],
       SymbolCall: match[4],
     };
+
+    if (!this.Archives[Archive.FileLocation]) {
+      this.Archives[Archive.FileLocation] = {
+        Archives: [],
+        File: Archive.FileLocation,
+        NumRecords: 0,
+      };
+    }
+
+    this.Archives[Archive.FileLocation].NumRecords++;
+    this.Archives[Archive.FileLocation].Archives.push(Archive);
   }
 
   private parseSectionMatch(match: RegExpExecArray, regex: RegExp) {
@@ -346,7 +367,7 @@ class MapParser {
         match.shift(); // access actual match
 
         if (activeSegment.ParseFunction) {
-          activeSegment.ParseFunction(match, activeSegment.Regex);
+          activeSegment.ParseFunction(match, activeSegment.Regex, this);
         } else {
           console.debug(
             "unexpected match, no parsing function provided",

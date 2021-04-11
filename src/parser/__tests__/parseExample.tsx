@@ -36,6 +36,9 @@ test("test parse big output.map file", () => {
   expect(a.map((s) => [s.Name, s.NumRecords])).toEqual(
     b.map((s) => [s[0], s[3]])
   );
+
+  const archives_array = Object.keys(parser.Archives);
+  expect(archives_array.length).toBe(15);
 });
 
 test("test parse hello-world example file to object", () => {
@@ -72,13 +75,19 @@ test("test parse hello-world example file to object", () => {
 
   // WIP: implement archive array
   expect(parser.Archives).toEqual({
-    "elf-init.oS": {
-      FileLocation: "/usr/lib/x86_64-linux-gnu/libc_nonshared.a",
-      CompilationUnit:
-        "/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/Scrt1.o",
-      SymbolCall:
-        "(__libc_csu_init) (cmsys::RegularExpression::RegularExpression(cmsys::RegularExpression const&))",
-      Symbol: "elf-init.oS",
+    "/usr/lib/x86_64-linux-gnu/libc_nonshared.a": {
+      File: "/usr/lib/x86_64-linux-gnu/libc_nonshared.a",
+      NumRecords: 1,
+      Archives: [
+        {
+          FileLocation: "/usr/lib/x86_64-linux-gnu/libc_nonshared.a",
+          CompilationUnit:
+            "/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/Scrt1.o",
+          SymbolCall:
+            "(__libc_csu_init) (cmsys::RegularExpression::RegularExpression(cmsys::RegularExpression const&))",
+          Symbol: "elf-init.oS",
+        },
+      ],
     },
   });
 });
