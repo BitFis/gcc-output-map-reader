@@ -42,17 +42,11 @@ class SubSection {
    * Parse subsection content and return number of child sections
    */
   parse(subsection_content: string): number {
-    const tmp_remove_me = ".no_match_data";
-
     //                         [space]   [* or space]
     //                                if [---space--] [0x-address--------] [--mangaled name-]
     //                                if [*][--some--additonal-info-(*fill* or *(.))---]
     // eslint-disable-next-line
     const SUBSECTION_CONTENT = /\n[^\.\n](\*[^\n]*| +)(0x[0-9a-fA-F]+|[^ ]+)? *([^\n]*)/gm;
-
-    if (this.Section == tmp_remove_me) {
-      console.log(subsection_content);
-    }
 
     let match;
     let counter = 0;
@@ -108,17 +102,6 @@ class SubSection {
           dontCountAnyFollowUp = true;
           continue;
         }
-
-        if (tmp_remove_me == this.Section) {
-          console.log(
-            "I>",
-            this.Section,
-            this.Name,
-            addressStart,
-            "|",
-            match[3]
-          );
-        }
       } else {
         console.log(
           `Potential SubSection parse issue in ${this.Section}:${this.Name} - strange start: '${identifier}' (expected * or ' ')`,
@@ -127,10 +110,6 @@ class SubSection {
       }
 
       // check valid address space
-    }
-
-    if (this.Section == tmp_remove_me) {
-      console.log("END", this.Section, counter);
     }
 
     return counter;
@@ -225,6 +204,14 @@ class Section {
   }
 }
 
+type SegmentParseFunction = (match: RegExpExecArray, regex: RegExp) => void;
+
+interface SegmentInfo {
+  Regex: RegExp;
+  ParseFunction?: SegmentParseFunction;
+  activeSegment?: string;
+}
+
 class MapParser {
   private currentPos = 0;
 
@@ -236,7 +223,34 @@ class MapParser {
   // length of hex address representation, will help parsing
   public static ADDRESS_HEX_LENGTH = 18;
 
-  private SECTION_MATCHER = /(\n(\.[^ \n\t]+)\n? *(0x[0-9a-fA-F]+)? *(0x[0-9a-fA-F]+)?([^\n]*(\n [^\n]*)*))/gm;
+  // match hex storage address (0xADDRESS(8+))
+  public static ADDRESS_MATCHER = `(0x[0-9a-fA-F]{8,})`;
+  // match section size (0xHEX)
+  public static SECTION_SIZE_MATCHER = `(0x[0-9a-fA-F]+)`;
+
+  // Be aware, for string regex, following need a '\' otherwise default string will be used:
+  //-> \. => \\. (enforce . match)
+  //-> \t => \\t (enforce tab match)
+
+  //                             [----section-------] [--0x address----] [---size (opt)--] [---anything till double \n\n-]
+  // eslint-disable-next-line
+  public static SECTION_REGEX = `\n(\\.[^ \n\\t]+)\n? *${MapParser.ADDRESS_MATCHER}? *${MapParser.SECTION_SIZE_MATCHER}?([^\n]*(\n [^\n]*)*)`;
+
+  //                            [archive-path] (-Symbol-)\n  [CompileUnit](--Call--)
+  // eslint-disable-next-line
+  public static ARCHIVE_REGEX = `\n([^\\(\n ]+)\\(([^\\)]+)\\)\n +([^\n\\(]+)\\(([^\n\\)]+)`;
+
+  public static ARCHIVE_START = `Archive member included to satisfy reference by file[^\n]*`;
+  public static SECTION_START = `Linker script and memory map[^\n]*`;
+
+  // list of starts of new region within the output.map file
+  public static SEGMENT_STARTS_LIST = [
+    MapParser.ARCHIVE_START,
+    `Merging program properties[^\n]*`,
+    `Discarded input sections[^\n]*`,
+    `Memory Configuration[^\n]*`,
+    MapParser.SECTION_START,
+  ];
 
   public Sections: {
     [key: string]: Section;
@@ -245,22 +259,25 @@ class MapParser {
     [CompilationUnit: string]: Archive;
   } = {};
 
-  private parseSectionMatch(match: RegExpExecArray) {
-    if (match.length <= 5) {
-      console.log(
-        `parser error at: ${match.index} ${this.SECTION_MATCHER.lastIndex}`
-      );
+  private parseArchiveMatch() {
+    // WIP parse
+    // console.log(`match: ${match[0]}`);
+  }
+
+  private parseSectionMatch(match: RegExpExecArray, regex: RegExp) {
+    if (match.length <= 4) {
+      console.log(`parser error at: ${match.index} ${regex.lastIndex}`);
       return;
     }
 
-    if (match.length >= 4) {
-      const name = match[2];
-      const hexaddr = match[3]?.slice(2);
-      const hexsize = match[4]?.slice(2);
+    if (match.length >= 3) {
+      const name = match[1];
+      const hexaddr = match[2]?.slice(2);
+      const hexsize = match[3]?.slice(2);
 
       if (!name || (!hexaddr && hexsize) || (hexaddr && !hexsize)) {
         console.warn(
-          `possible parsing error at character ${match.index} - ${this.SECTION_MATCHER.lastIndex}`
+          `possible parsing error at character ${match.index} - ${regex.lastIndex}`
         );
         return;
       }
@@ -270,29 +287,68 @@ class MapParser {
         hexaddr ? parseInt(hexaddr, 16) : 0,
         hexsize ? parseInt(hexsize, 16) : 0
       );
-      section.parse(match[5]);
+      section.parse(match[4]);
       if (this.Sections[name]) {
         this.Sections[name].append(section);
       } else {
         this.Sections[name] = section;
       }
     } else {
-      console.log(
-        `parser error at: ${match.index} ${this.SECTION_MATCHER.lastIndex}`
-      );
+      console.log(`parser error at: ${match.index} ${regex.lastIndex}`);
     }
   }
 
+  private getSegmentRegex(segment: string): SegmentInfo {
+    const regexList = MapParser.SEGMENT_STARTS_LIST.slice();
+    let parseFunction = undefined;
+    let activeSegment = undefined;
+
+    console.debug(`Parse Segment: ${segment}`);
+    if (new RegExp(MapParser.ARCHIVE_START, "g").test(segment)) {
+      activeSegment = "ARCHIVE";
+      regexList.push(MapParser.ARCHIVE_REGEX);
+      parseFunction = this.parseArchiveMatch.bind(this);
+    } else if (new RegExp(MapParser.SECTION_START, "g").test(segment)) {
+      activeSegment = "SECTION";
+      regexList.push(MapParser.SECTION_REGEX);
+      parseFunction = this.parseSectionMatch.bind(this);
+    } else {
+      // WIP, ignore any other segment for now
+      // console.debug(`WIP: skip ${segment}`);
+    }
+    return {
+      Regex: new RegExp(`(${regexList.join("|")})`, "gm"),
+      ParseFunction: parseFunction,
+      activeSegment: activeSegment,
+    };
+  }
+
   parse(content: string): void {
-    const regexp = this.SECTION_MATCHER;
+    let activeSegment: SegmentInfo = {
+      Regex: new RegExp(`(${MapParser.SEGMENT_STARTS_LIST.join("|")})`, "gm"),
+      activeSegment: "START",
+    };
 
     let match: RegExpExecArray | null;
-    while ((match = regexp.exec(content)) !== null) {
-      const identifier = match[2];
+    while ((match = activeSegment.Regex.exec(content)) !== null) {
+      const next_match = match[2];
 
-      if (identifier.startsWith(".")) {
-        // section
-        this.parseSectionMatch(match);
+      if (next_match) {
+        match.shift(); // access actual match
+
+        if (activeSegment.ParseFunction) {
+          activeSegment.ParseFunction(match, activeSegment.Regex);
+        } else {
+          console.debug(
+            "unexpected match, no parsing function provided",
+            match[0]
+          );
+        }
+      } else {
+        // replace active regex
+        const index = activeSegment.Regex.lastIndex;
+        activeSegment = this.getSegmentRegex(match[1]);
+        activeSegment.Regex.lastIndex = index;
       }
     }
   }
