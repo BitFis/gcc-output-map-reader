@@ -117,7 +117,7 @@ class SubSection {
 }
 
 interface Archive {
-  Sumbol: string;
+  Symbol: string;
   FileLocation: string;
   CompilationUnit: string;
   SymbolCall: string;
@@ -179,7 +179,6 @@ class Section {
   }
 
   append(section: Section) {
-    // WIP
     if (this.StartAddress == 0) {
       this.StartAddress = section.StartAddress;
     } else if (section.StartAddress != 0) {
@@ -238,7 +237,7 @@ class MapParser {
 
   //                            [archive-path] (-Symbol-)\n  [CompileUnit](--Call--)
   // eslint-disable-next-line
-  public static ARCHIVE_REGEX = `\n([^\\(\n ]+)\\(([^\\)]+)\\)\n +([^\n\\(]+)\\(([^\n\\)]+)`;
+  public static ARCHIVE_REGEX = `\n([^\\(\n ]+)\\(([^\\)]+)\\)\n +([^\n ]+) +([^\n]+)`;
 
   public static ARCHIVE_START = `Archive member included to satisfy reference by file[^\n]*`;
   public static SECTION_START = `Linker script and memory map[^\n]*`;
@@ -259,9 +258,20 @@ class MapParser {
     [CompilationUnit: string]: Archive;
   } = {};
 
-  private parseArchiveMatch() {
-    // WIP parse
-    // console.log(`match: ${match[0]}`);
+  private parseArchiveMatch(match: RegExpExecArray) {
+    if (match.length < 4) {
+      console.log(
+        `Unexpected parsing at character ${match.index} - ${regex.lastIndex}`,
+        match[0]
+      );
+    }
+
+    this.Archives[match[2]] = {
+      CompilationUnit: match[3],
+      FileLocation: match[1],
+      Symbol: match[2],
+      SymbolCall: match[4],
+    };
   }
 
   private parseSectionMatch(match: RegExpExecArray, regex: RegExp) {
@@ -303,7 +313,6 @@ class MapParser {
     let parseFunction = undefined;
     let activeSegment = undefined;
 
-    console.debug(`Parse Segment: ${segment}`);
     if (new RegExp(MapParser.ARCHIVE_START, "g").test(segment)) {
       activeSegment = "ARCHIVE";
       regexList.push(MapParser.ARCHIVE_REGEX);

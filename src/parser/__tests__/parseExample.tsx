@@ -71,8 +71,14 @@ test("test parse hello-world example file to object", () => {
   );
 
   // WIP: implement archive array
-  //const archiveArray = Object.keys(parser.Archives);
-  //expect(archiveArray.length).toBe(1);
-
-  // check componenten number
+  expect(parser.Archives).toEqual({
+    "elf-init.oS": {
+      FileLocation: "/usr/lib/x86_64-linux-gnu/libc_nonshared.a",
+      CompilationUnit:
+        "/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/Scrt1.o",
+      SymbolCall:
+        "(__libc_csu_init) (cmsys::RegularExpression::RegularExpression(cmsys::RegularExpression const&))",
+      Symbol: "elf-init.oS",
+    },
+  });
 });
