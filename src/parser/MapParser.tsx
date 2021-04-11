@@ -4,6 +4,11 @@ interface SubSectionSpace {
   Size: number;
 }
 
+// WIP: Use Worker in the future
+async function refreshUI() {
+  await new Promise((r) => setTimeout(r, 0));
+}
+
 class SubSection {
   public Additonal: string[] = []; // valid but not specifically parser
   // *(.xyz) options or *fill* -> not further processed for now
@@ -150,7 +155,16 @@ class SubSection {
 
     // set size of first element
     if (this.MangledList.length > 0) {
-      this.MangledList[0].Size = this.Size - totalInnerSize;
+      if (this.Size - totalInnerSize < 0) {
+        console.error(
+          `Issue while parsing, got negative number? ${
+            this.Size
+          } - ${totalInnerSize} = ${this.Size - totalInnerSize}`,
+          this
+        );
+      } else {
+        this.MangledList[0].Size = this.Size - totalInnerSize;
+      }
     }
 
     return counter;
@@ -185,7 +199,7 @@ export class Section {
   parse(section_content: string, mapParser: MapParser): SubSection[] {
     // regex::             [subsection] [0xaddress space] [    0xsize    ]  [ subsection valid aslong '\n ^.' ]
     // eslint-disable-next-line
-    const SUBSECTION_REGEX = / (\.[^ \t\n]+)\n? +(0x[0-9a-fA-F]+) +(0x[0-9a-fA-F]+) ?([^\n]+)?((\n [^\.][^\n]*)*)/gm;
+    const SUBSECTION_REGEX = / (\.[^ \t\n]+|COMMON)\n? +(0x[0-9a-fA-F]+) +(0x[0-9a-fA-F]+) ?([^\n]+)?((\n [^\.*][^\n]*)*)/gm;
 
     // result NumRecords
     // WIP
@@ -220,6 +234,11 @@ export class Section {
       mapParser.SubSections.push(subSection);
 
       this.NumRecords += subSection.getNumRecords();
+
+      if (subsection === "COMMON") {
+        // remove common record (TMP???)
+        this.NumRecords -= 1;
+      }
     }
 
     // WIP possible to extend, matching regions with *(.ldata / )
@@ -397,7 +416,7 @@ class MapParser {
     };
   }
 
-  parse(content: string): void {
+  async parse(content: string): Promise<void> {
     let activeSegment: SegmentInfo = {
       Regex: new RegExp(`(${MapParser.SEGMENT_STARTS_LIST.join("|")})`, "gm"),
       activeSegment: "START",
@@ -424,6 +443,9 @@ class MapParser {
         activeSegment = this.getSegmentRegex(match[1]);
         activeSegment.Regex.lastIndex = index;
       }
+
+      // WIP: update state??
+      await refreshUI();
     }
   }
 }

@@ -6,7 +6,7 @@ import expectedResult from "../../../examples/expected_a_hallo_cmake_sections.js
 // changed, value of .init_array => issue parsing address without size
 import bigExpectedSections from "../../../examples/cmake_output_sections.json";
 
-xtest("test parse big output.map file", () => {
+test("test parse big output.map file", async () => {
   MapParser.TurnOnAMPEquality = true;
   let fileBuffer = fs.readFileSync(
     path.join(__dirname, "./../../../examples/", "cmake_output.map.p1")
@@ -18,7 +18,7 @@ xtest("test parse big output.map file", () => {
   content += fileBuffer.toString("utf-8");
 
   const parser = new MapParser();
-  parser.parse(content);
+  await parser.parse(content);
 
   const sectionArray = Object.keys(parser.Sections).map(
     (k) => parser.Sections[k]
@@ -41,7 +41,7 @@ xtest("test parse big output.map file", () => {
   expect(archives_array.length).toBe(15);
 });
 
-test("test parse hello-world example file to object", () => {
+test("test parse hello-world example file to object", async () => {
   // cross check with amp.exe implementation results
   MapParser.TurnOnAMPEquality = true;
 
@@ -53,7 +53,7 @@ test("test parse hello-world example file to object", () => {
 
   const parser = new MapParser();
 
-  parser.parse(content.toString("utf-8"));
+  await parser.parse(content.toString("utf-8"));
 
   const sectionArray = Object.keys(parser.Sections).map(
     (k) => parser.Sections[k]

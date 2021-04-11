@@ -8,7 +8,7 @@ function parseFile(files: FileList | null): Promise<MapParser> {
   if (files?.length === 1) {
     const file = files.item(0) as File;
 
-    return file.arrayBuffer().then((buffer: ArrayBuffer) => {
+    return file.arrayBuffer().then(async (buffer: ArrayBuffer) => {
       // do things
       console.log("lets work on the file size: ", buffer.byteLength);
 
@@ -18,7 +18,7 @@ function parseFile(files: FileList | null): Promise<MapParser> {
       });
 
       const parser = new MapParser();
-      parser.parse(content);
+      await parser.parse(content);
       return parser;
     });
   } else {
@@ -84,6 +84,7 @@ const OutputDrop: VFC<Props> = ({ OnLoaded }) => {
       <FileDrop
         onDrop={(files) => {
           setDropLoading(true);
+          // lets run in background
           parseFile(files)
             .then(OnLoaded)
             .catch((err) => setDropError(err))
@@ -123,7 +124,9 @@ const OutputDrop: VFC<Props> = ({ OnLoaded }) => {
                 : {}
             }
           >
-            {loading || dropLoading ? "Loading ..." : "Drop output.map here"}
+            {loading || dropLoading
+              ? "Loading ... (Will currently block any interaction)"
+              : "Drop output.map here"}
           </Button>
         </Box>
       </FileDrop>
