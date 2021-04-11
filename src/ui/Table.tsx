@@ -19,7 +19,7 @@ const Table: VFC<Props> = ({ data, columns }) => {
         sort={true}
         pagination={{
           enabled: true,
-          limit: 20,
+          limit: 200,
         }}
         className={{
           td: "dense-table-cell light-content",

@@ -112,7 +112,6 @@ const App: VFC = () => {
     };
     const Archives: { [key: string]: ByFilesTableColumns } = {};
     Object.keys(parser.Archives).forEach((k) => {
-      console.log("key", k);
       Archives[k] = {
         "Num of records": 0,
         "Size no .bss": -1,
@@ -141,7 +140,6 @@ const App: VFC = () => {
         // WIP, move to parsing process??
         // select archive for process
         let partOfModule: ModulesTableColumns = Archives[subSections.FileName];
-        console.log(subSections.FileName);
         if (!partOfModule) {
           partOfModule = notPartOfArchive;
         }
