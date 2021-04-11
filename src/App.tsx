@@ -58,10 +58,10 @@ const formatSize = (size: number) => {
   const MB = Math.floor(size / 1000 / 1000);
 
   if (MB > 0) {
-    return `${all} (${MB}M)`;
+    return `${all} (+${MB}M)`;
   }
   if (KB > 0) {
-    return `${all} (${KB}K)`;
+    return `${all} (+${KB}K)`;
   }
   return `${all}`;
 };
