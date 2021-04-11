@@ -11,13 +11,25 @@ class SubSection {
   // -1 = undefined
   public AddressSpaceSize = -1;
 
+  public Name: string;
+  public Mangled = "";
+
   constructor(
     public Section: string, // Section name
-    public Name: string, // Subsection name
+    public FullName: string, // Subsection name
     public StartAddress: number, // Start address
     public Size: number, // Size of subsection
     public FileName: string // Filename
-  ) {}
+  ) {
+    // eslint-disable-next-line
+    const subSectionSplit = /(\.[^\.]+)(.*)/g.exec(FullName);
+    if (subSectionSplit) {
+      this.Name = subSectionSplit[1] || "";
+      this.Mangled = subSectionSplit[2] || "";
+    } else {
+      this.Name = FullName;
+    }
+  }
 
   getNumRecords(): number {
     let count = 0;
@@ -129,10 +141,11 @@ interface ArchiveFile {
   Archives: Archive[];
 }
 
-class Section {
+export class Section {
   public NumRecords = 0;
   // calculated length of address space to next sector
   public AddressSpaceSize = 0;
+  public SubSectionsList: SubSection[] = [];
 
   constructor(
     public Name: string, //
@@ -140,7 +153,7 @@ class Section {
     public Size: number
   ) {}
 
-  parse(section_content: string): SubSection[] {
+  parse(section_content: string, mapParser: MapParser): SubSection[] {
     // regex::             [subsection] [0xaddress space] [    0xsize    ]  [ subsection valid aslong '\n ^.' ]
     // eslint-disable-next-line
     const SUBSECTION_REGEX = / (\.[^ \t\n]+)\n? +(0x[0-9a-fA-F]+) +(0x[0-9a-fA-F]+) ?([^\n]+)?((\n [^\.][^\n]*)*)/gm;
@@ -149,7 +162,6 @@ class Section {
     // WIP
     // console.log("parse for section: ", this.Name);
 
-    const subSectionsList: SubSection[] = [];
     let match;
 
     while ((match = SUBSECTION_REGEX.exec(section_content)) != null) {
@@ -167,7 +179,7 @@ class Section {
       // WIP add to somewhere
       const subSection = new SubSection(
         this.Name,
-        subsection,
+        subsection.replace(/\.text.+/, ""),
         address,
         size,
         fileName
@@ -175,16 +187,17 @@ class Section {
       if (match[5]) {
         subSection.parse(match[5]);
       }
-      subSectionsList.push(subSection);
+      this.SubSectionsList.push(subSection);
+      mapParser.SubSections.push(subSection);
 
       this.NumRecords += subSection.getNumRecords();
     }
 
     // WIP possible to extend, matching regions with *(.ldata / )
-    return subSectionsList;
+    return this.SubSectionsList;
   }
 
-  append(section: Section) {
+  append(section: Section): void {
     if (this.StartAddress == 0) {
       this.StartAddress = section.StartAddress;
     } else if (section.StartAddress != 0) {
@@ -264,6 +277,7 @@ class MapParser {
   public Sections: {
     [key: string]: Section;
   } = {};
+  public SubSections: SubSection[] = [];
   public Archives: {
     [ArchiveFile: string]: ArchiveFile;
   } = {};
@@ -318,7 +332,7 @@ class MapParser {
         hexaddr ? parseInt(hexaddr, 16) : 0,
         hexsize ? parseInt(hexsize, 16) : 0
       );
-      section.parse(match[4]);
+      section.parse(match[4], this);
       if (this.Sections[name]) {
         this.Sections[name].append(section);
       } else {

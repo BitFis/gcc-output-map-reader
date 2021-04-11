@@ -11,6 +11,7 @@ import {
 import Table from "./ui/Table";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import OutputDrop from "./ui/OutputDrop";
+import MapParser from "./parser/MapParser";
 
 function a11yProps(index: number) {
   return {
@@ -28,11 +29,96 @@ const TableSkeleton: VFC = () => {
   );
 };
 
+type AllTableColumns = {
+  Section: string;
+  SubSection: string;
+  Address: number;
+  Size: number;
+  "Demangled Name": string;
+  "Moduled Name": string;
+  "File Name": string;
+  "Mandled Name": string;
+};
+const AllTableColumnsOrder = [
+  "Section",
+  "SubSection",
+  "Address",
+  "Size",
+  "Demangled Name",
+  "Moduled Name",
+  "File Name",
+  "Mandled Name",
+];
+
+type TableContentType = string | number;
+
+class DataTableArray<T extends Record<string, TableContentType>> {
+  Items: TableContentType[][] = [];
+
+  add(insert: T) {
+    const sorted: TableContentType[] = [];
+    AllTableColumnsOrder.forEach((c) => {
+      sorted.push(insert[c]);
+    });
+    this.Items.push(sorted);
+  }
+}
+
 const App: VFC = () => {
   const [value, setValue] = useState("all");
 
+  const [allData, setAllData] = useState<TableContentType[][]>([]);
+
   const handleChange = (_event: SyntheticEvent, newValue: string) => {
     setValue(newValue);
+  };
+
+  const fillDatabase = (parser: MapParser) => {
+    const all = new DataTableArray<AllTableColumns>();
+    // fill all
+
+    // Wip fill module / archive categorisation
+    Object.keys(parser.Sections).forEach((sectionKey) => {
+      parser.Sections[sectionKey].SubSectionsList.forEach((subSections) => {
+        const insert: AllTableColumns = {
+          "Demangled Name": "",
+          "File Name": subSections.FileName,
+          "Mandled Name": subSections.Mangled.replace(/$\.(text|data)/g, ""),
+          Address: subSections.StartAddress,
+          Section: subSections.Section,
+          SubSection: subSections.Name,
+          Size: subSections.Size,
+          "Moduled Name": "",
+        };
+
+        if (subSections.MangledList.length > 0) {
+          subSections.MangledList.forEach((mangled) => {
+            insert["Mandled Name"] = mangled.MangledName;
+            insert.Size = insert.Address;
+            insert.Address = mangled.AddressStart;
+            all.add(insert);
+          });
+          // insert mangled info
+        } else {
+          all.add(insert);
+        }
+      });
+    });
+
+    all.add({
+      Address: 318,
+      Size: 28,
+      SubSection: ".interopt",
+      Section: ".interopt",
+      "Demangled Name": "",
+      "Moduled Name": "",
+      "File Name":
+        "/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/Scrt1.o",
+      "Mandled Name": "",
+    });
+
+    //console.log("res ...", parser.Archives);
+    setAllData(all.Items);
   };
 
   return (
@@ -42,7 +128,7 @@ const App: VFC = () => {
           output.map viewer
         </Typography>
 
-        <OutputDrop />
+        <OutputDrop OnLoaded={fillDatabase} />
 
         <TabContext value={value}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -71,7 +157,7 @@ const App: VFC = () => {
             </Tabs>
           </Box>
           <TabPanel value="all">
-            <Table />
+            <Table data={allData} columns={AllTableColumnsOrder} />
           </TabPanel>
           <TabPanel value="by_module">
             <TableSkeleton />

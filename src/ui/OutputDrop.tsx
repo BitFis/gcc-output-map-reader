@@ -4,7 +4,7 @@ import { FileDrop } from "react-file-drop";
 import { useFilePicker } from "use-file-picker";
 import MapParser from "../parser/MapParser";
 
-function parseFile(files: FileList | null): Promise<ArrayBuffer> {
+function parseFile(files: FileList | null): Promise<MapParser> {
   if (files?.length === 1) {
     const file = files.item(0) as File;
 
@@ -19,10 +19,7 @@ function parseFile(files: FileList | null): Promise<ArrayBuffer> {
 
       const parser = new MapParser();
       parser.parse(content);
-
-      console.log(Object.keys(parser.Sections));
-
-      return buffer;
+      return parser;
     });
   } else {
     return new Promise((res, rej) => {
@@ -32,7 +29,11 @@ function parseFile(files: FileList | null): Promise<ArrayBuffer> {
   }
 }
 
-const OutputDrop: VFC = () => {
+type Props = {
+  OnLoaded: (mapParser: MapParser) => void;
+};
+
+const OutputDrop: VFC<Props> = ({ OnLoaded }) => {
   const [filesContent, errors, openFileSelector, loading] = useFilePicker({
     multiple: false,
     // accept: '.ics,.pdf',
@@ -84,6 +85,7 @@ const OutputDrop: VFC = () => {
         onDrop={(files) => {
           setDropLoading(true);
           parseFile(files)
+            .then(OnLoaded)
             .catch((err) => setDropError(err))
             .finally(() => setDropLoading(false));
         }}

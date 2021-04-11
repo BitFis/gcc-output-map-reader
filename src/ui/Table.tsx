@@ -2,19 +2,24 @@ import { Grid } from "gridjs-react";
 import { VFC } from "react";
 import "./Table.css";
 
-const Table: VFC = () => {
+type ArrayType = string | number;
+
+type Props = {
+  data: ArrayType[][];
+  columns: string[];
+};
+
+const Table: VFC<Props> = ({ data, columns }) => {
   return (
     <div>
       <Grid
-        data={[
-          ["", 105000, 105000, 2311],
-          [" Source/libCTestLib.a", 1993516, 1994816, 10279],
-        ]}
-        columns={["Module", "Size no .bss", "Size", "Num of records"]}
+        data={data}
+        columns={columns}
         search={true}
+        sort={true}
         pagination={{
           enabled: true,
-          limit: 100,
+          limit: 20,
         }}
         className={{
           td: "dense-table-cell light-content",
