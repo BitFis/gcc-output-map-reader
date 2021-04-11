@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "https://bitfis.github.io/gcc-output-map-web-renderer/static/css/main.352f34cc.chunk.css",
-    "main.js": "https://bitfis.github.io/gcc-output-map-web-renderer/static/js/main.b259eee0.chunk.js",
-    "main.js.map": "https://bitfis.github.io/gcc-output-map-web-renderer/static/js/main.b259eee0.chunk.js.map",
+    "main.js": "https://bitfis.github.io/gcc-output-map-web-renderer/static/js/main.c760a1f4.chunk.js",
+    "main.js.map": "https://bitfis.github.io/gcc-output-map-web-renderer/static/js/main.c760a1f4.chunk.js.map",
     "runtime-main.js": "https://bitfis.github.io/gcc-output-map-web-renderer/static/js/runtime-main.da4342ef.js",
     "runtime-main.js.map": "https://bitfis.github.io/gcc-output-map-web-renderer/static/js/runtime-main.da4342ef.js.map",
     "static/js/2.7cb6d0c0.chunk.js": "https://bitfis.github.io/gcc-output-map-web-renderer/static/js/2.7cb6d0c0.chunk.js",
@@ -17,6 +17,6 @@
     "static/js/runtime-main.da4342ef.js",
     "static/js/2.7cb6d0c0.chunk.js",
     "static/css/main.352f34cc.chunk.css",
-    "static/js/main.b259eee0.chunk.js"
+    "static/js/main.c760a1f4.chunk.js"
   ]
 }
