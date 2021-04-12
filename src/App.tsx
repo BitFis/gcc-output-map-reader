@@ -123,12 +123,14 @@ const App: VFC = () => {
 
   const fillDatabase = (parser: MapParser) => {
     const all = new DataTableArray<AllTableColumns>(
-      AllTableColumnsOrder.map((c) => {
+      // eslint-disable-next-line
+      AllTableColumnsOrder.map((c: any) => {
         return c.name || c;
       })
     );
     const allModules = new DataTableArray<ModulesTableColumns>(
-      ModulesTableColumnsOrder.map((c) => {
+      // eslint-disable-next-line
+      ModulesTableColumnsOrder.map((c: any) => {
         return c.name || c;
       })
     );
