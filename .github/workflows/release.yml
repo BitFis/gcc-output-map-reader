@@ -3,18 +3,22 @@
 
 name: Release CI
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    types: [assigned, opened, synchronize, reopened]
+on: workflow_dispatch
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/build.yml
 
+  release:
+    runs-on: ubuntu-latest
+    needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@master
+        with:
+          name: build-artefact
+          path: build
+      - run: ls -l
       - uses: codfish/semantic-release-action@v2
         with:
           # specify default branches to add support for the `main` branch
@@ -25,6 +29,7 @@ jobs:
               'main',
               'next',
               'next-major',
+              'chore/setup-release-package',
               {
                 name: 'beta',
                 prerelease: true
@@ -34,6 +39,15 @@ jobs:
                 prerelease: true
               }
             ]
-          dry_run: true
+          plugins: |
+            [
+              '@semantic-release/commit-analyzer',
+              '@semantic-release/release-notes-generator',
+              ['@semantic-release/github', {
+                "assets": [
+                  {"path": "build/gcc-output-map-web-renderer.zip", "label": "Precompiled Web App"}
+                ]
+              }]
+            ]
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

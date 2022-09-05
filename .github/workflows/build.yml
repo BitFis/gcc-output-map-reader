@@ -1,0 +1,28 @@
+name: Build CI
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18.x
+      - run: yarn
+        # use the deploy env file
+      - run: cp .env.deploy .env
+      - run: yarn check-format
+      - run: yarn lint
+      - run: yarn build --if-present
+      - run: yarn test --watchAll=false
+      # create package from latest for download
+      - run: yarn package
+      - uses: actions/upload-artifact@master
+        with:
+          name: build-artefact
+          path: build
