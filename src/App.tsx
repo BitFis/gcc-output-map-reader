@@ -7,12 +7,14 @@ import {
   Tabs,
   Typography,
   Skeleton,
+  IconButton,
 } from "@material-ui/core";
 import Table from "./ui/Table";
 import OutputDrop from "./ui/OutputDrop";
 import MapParser from "./parser/MapParser";
 import { TCell } from "gridjs/dist/src/types";
 import { TabContext, TabPanel } from "@mui/lab";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 
 function a11yProps(index: number) {
   return {
@@ -221,6 +223,9 @@ const App: VFC = () => {
     <Container maxWidth="lg">
       <Box my={4}>
         <Typography variant="h4" component="h1" gutterBottom>
+          <IconButton href="./gcc-output-map-web-renderer.zip">
+            <CloudDownloadIcon color="action" />
+          </IconButton>
           output.map viewer
         </Typography>
 
