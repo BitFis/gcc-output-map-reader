@@ -29,6 +29,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "package": "rm -rf build/pkg && rm -rf build/gcc-output-map-web-renderer.zip && PUBLIC_URL='.' GENERATE_SOURCEMAP=false BUILD_PATH='build/pkg' react-scripts build && cd build/pkg && zip -r ../gcc-output-map-web-renderer.zip ./* && rm -rf build/pkg",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write . !build",

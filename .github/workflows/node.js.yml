@@ -7,8 +7,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
-    types: [closed]
+    types: [assigned, opened, synchronize, reopened]
 
 jobs:
   build:
@@ -49,3 +48,22 @@ jobs:
           # cname: # optional
           # `yes` in case of a Jekyll site.
           # jekyll: # optional, default is no
+
+  package:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [15.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn
+        # use the deploy env file
+      - run: cp .env.deploy .env
+      - run: yarn package
