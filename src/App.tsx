@@ -9,10 +9,10 @@ import {
   Skeleton,
 } from "@material-ui/core";
 import Table from "./ui/Table";
-import { TabContext, TabPanel } from "@material-ui/lab";
 import OutputDrop from "./ui/OutputDrop";
 import MapParser from "./parser/MapParser";
 import { TCell } from "gridjs/dist/src/types";
+import { TabContext, TabPanel } from "@mui/lab";
 
 function a11yProps(index: number) {
   return {

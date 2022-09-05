@@ -12,7 +12,9 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
-          node-version: 18.x
+          # for 18.x version, set following:
+          # export NODE_OPTIONS=--openssl-legacy-provider
+          node-version: 16.x
       - run: yarn
         # use the deploy env file
       - run: cp .env.deploy .env

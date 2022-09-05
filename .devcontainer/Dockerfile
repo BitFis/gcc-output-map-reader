@@ -1,4 +1,4 @@
-ARG VARIANT="15.14"
+ARG VARIANT="16"
 FROM node:${VARIANT}
 
 RUN apt-get update \
