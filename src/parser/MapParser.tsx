@@ -282,7 +282,16 @@ interface SegmentInfo {
   activeSegment?: string;
 }
 
-class MapParser {
+class ObjData {
+  public Archives: {
+    [ArchiveFile: string]: ArchiveFile;
+  } = {};
+  public Sections: {
+    [key: string]: Section;
+  } = {};
+}
+
+class MapParser extends ObjData {
   private currentPos = 0;
 
   // Wip, currently, since some stats are handled differently
@@ -322,13 +331,7 @@ class MapParser {
     MapParser.SECTION_START,
   ];
 
-  public Sections: {
-    [key: string]: Section;
-  } = {};
   public SubSections: SubSection[] = [];
-  public Archives: {
-    [ArchiveFile: string]: ArchiveFile;
-  } = {};
 
   private parseArchiveMatch(match: RegExpExecArray, regex: RegExp) {
     if (match.length < 4) {

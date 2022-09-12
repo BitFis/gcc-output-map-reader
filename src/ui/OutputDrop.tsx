@@ -3,15 +3,13 @@ import { useState, VFC } from "react";
 import { FileDrop } from "react-file-drop";
 import { useFilePicker } from "use-file-picker";
 import MapParser from "../parser/MapParser";
+import Timer from "../utils/Timer";
 
 function parseFile(files: FileList | null): Promise<MapParser> {
   if (files?.length === 1) {
     const file = files.item(0) as File;
 
     return file.arrayBuffer().then(async (buffer: ArrayBuffer) => {
-      // do things
-      console.log("lets work on the file size: ", buffer.byteLength);
-
       let content = "";
       new Uint8Array(buffer).forEach((byte: number) => {
         content += String.fromCharCode(byte);
@@ -83,23 +81,29 @@ const OutputDrop: VFC<Props> = ({ OnLoaded }) => {
       )}
       <FileDrop
         onDrop={(files) => {
+          const timer = new Timer();
+          timer.Reset();
+          console.debug(`Start loading file`);
           setDropLoading(true);
           // lets run in background
           parseFile(files)
             .then(OnLoaded)
             .catch((err) => setDropError(err))
-            .finally(() => setDropLoading(false));
+            .finally(() => {
+              setDropLoading(false);
+              console.debug(
+                `Loading and parsing file done [${timer.Format()}]`
+              );
+            });
         }}
         onDragOver={() => {
           if (!hover) {
             setHover(true);
-            console.log("setHover(true)");
           }
         }}
         onDragLeave={() => {
           if (hover) {
             setHover(false);
-            console.log("setHover(false)");
           }
         }}
       >

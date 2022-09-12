@@ -1,4 +1,4 @@
-import { SyntheticEvent, useState, VFC } from "react";
+import { SyntheticEvent, useEffect, useState, VFC } from "react";
 import "./App.css";
 import {
   Box,
@@ -11,10 +11,11 @@ import {
 } from "@material-ui/core";
 import Table from "./ui/Table";
 import OutputDrop from "./ui/OutputDrop";
-import MapParser from "./parser/MapParser";
 import { TCell } from "gridjs/dist/src/types";
 import { TabContext, TabPanel } from "@mui/lab";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import ObjData from "./parser/MapParser";
+import Timer from "./utils/Timer";
 
 function a11yProps(index: number) {
   return {
@@ -119,11 +120,20 @@ const App: VFC = () => {
   const [allData, setAllData] = useState<TableContentType[][]>([]);
   const [allModules, setAllModules] = useState<TableContentType[][]>([]);
 
+  const [data, setData] = useState<ObjData>(new ObjData());
+
+  useEffect(() => {
+    fillDatabase(data);
+  }, [data]);
+
   const handleChange = (_event: SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
 
-  const fillDatabase = (parser: MapParser) => {
+  const fillDatabase = (parser: ObjData) => {
+    const timer = new Timer();
+    console.debug("Start preparing database");
+
     const all = new DataTableArray<AllTableColumns>(
       // eslint-disable-next-line
       AllTableColumnsOrder.map((c: any) => {
@@ -156,7 +166,7 @@ const App: VFC = () => {
     });
 
     // fill all view data
-    // Wip fill module / archive categorisation
+    // Wip fill module / archive categorization
     Object.keys(parser.Sections).forEach((sectionKey) => {
       parser.Sections[sectionKey].SubSectionsList.forEach((subSections) => {
         const insert: AllTableColumns = {
@@ -217,6 +227,8 @@ const App: VFC = () => {
     //console.log("res ...", parser.Archives);
     setAllData(all.Items);
     setAllModules(allModules.Items);
+
+    console.debug(`Database views prepared ${timer.Format()}`);
   };
 
   return (
@@ -229,14 +241,14 @@ const App: VFC = () => {
           output.map viewer
         </Typography>
 
-        <OutputDrop OnLoaded={fillDatabase} />
+        <OutputDrop OnLoaded={setData} />
 
         <TabContext value={value}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
               value={value}
               onChange={handleChange}
-              aria-label="basic tabs example"
+              aria-label="Data analyze section"
             >
               <Tab label="All" value="all" {...a11yProps(0)} />
               <Tab label="By Module" value="by_module" {...a11yProps(1)} />
