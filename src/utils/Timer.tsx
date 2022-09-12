@@ -9,6 +9,10 @@ class Timer {
     this.start = Date.now();
   }
 
+  Format(): string {
+    return Timer.Format(this.ElapsedMs());
+  }
+
   static async SleepMs(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -18,14 +22,14 @@ class Timer {
   }
 
   static Format(elapsedMs: number): string {
-    const ms = elapsedMs % 60;
+    const ms = elapsedMs % 1000;
     elapsedMs -= ms;
-    const sec = Math.floor((elapsedMs / 60) % 60);
-    elapsedMs -= sec * 60;
-    const min = Math.floor((elapsedMs / 60 / 60) % 60);
-    elapsedMs -= min * 60 * 60;
-    const hours = Math.floor(elapsedMs / 60 / 60 / 60);
-    elapsedMs -= hours * 60 * 60 * 60;
+    const sec = Math.floor((elapsedMs / 1000) % 60);
+    elapsedMs -= sec * 1000;
+    const min = Math.floor((elapsedMs / 60 / 1000) % 60);
+    elapsedMs -= min * 60 * 1000;
+    const hours = Math.floor(elapsedMs / 60 / 60 / 1000);
+    elapsedMs -= hours * 60 * 60 * 1000;
 
     const res = [
       Timer.str(hours, "h"),
