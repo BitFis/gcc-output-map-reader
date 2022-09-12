@@ -5,6 +5,14 @@ class Timer {
     return Date.now() - this.start;
   }
 
+  Reset(): void {
+    this.start = Date.now();
+  }
+
+  static async SleepMs(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   private static str(num: number, suffix: string) {
     return num ? `${num}${suffix}` : "";
   }
