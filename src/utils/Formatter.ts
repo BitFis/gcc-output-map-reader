@@ -20,5 +20,14 @@ class Formatter {
     }
     return `${all}`;
   }
+
+  /**
+   * Converts number to string
+   * @param number Number to be converted
+   * @returns Hex version of number
+   */
+  public static ToHex(number: number): string {
+    return "0x" + `0000000000000000${number.toString(16)}`.slice(-16);
+  }
 }
 export default Formatter;
