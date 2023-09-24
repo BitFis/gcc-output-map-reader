@@ -1,5 +1,5 @@
 {
-  "name": "gmy-app",
+  "name": "gcc-output-map-viewer",
   "version": "0.1.0",
   "private": true,
   "repository": "git@github.com:BitFis/gcc-output-map-web-renderer.git",
