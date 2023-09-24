@@ -453,4 +453,4 @@ class MapParser extends ObjData {
   }
 }
 
-export default MapParser;
+export { MapParser, ObjData };

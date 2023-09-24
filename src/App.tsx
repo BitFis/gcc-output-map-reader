@@ -14,7 +14,7 @@ import OutputDrop from "./ui/OutputDrop";
 import { TCell } from "gridjs/dist/src/types";
 import { TabContext, TabPanel } from "@mui/lab";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
-import ObjData from "./parser/MapParser";
+import { ObjData } from "./parser/MapParser";
 import Timer from "./utils/Timer";
 import Formatter from "./utils/Formatter";
 

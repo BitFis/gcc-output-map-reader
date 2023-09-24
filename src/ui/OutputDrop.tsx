@@ -2,7 +2,7 @@ import { Alert, AlertTitle, Box, Button } from "@material-ui/core";
 import { useState, VFC } from "react";
 import { FileDrop } from "react-file-drop";
 import { useFilePicker } from "use-file-picker";
-import MapParser from "../parser/MapParser";
+import { MapParser } from "../parser/MapParser";
 import Timer from "../utils/Timer";
 
 function parseFile(files: FileList | null): Promise<MapParser> {
