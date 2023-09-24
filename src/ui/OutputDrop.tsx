@@ -2,30 +2,8 @@ import { Alert, AlertTitle, Box, Button } from "@mui/material";
 import { useState } from "react";
 import { FileDrop } from "react-file-drop";
 import { useFilePicker } from "use-file-picker";
-import { MapParser } from "../parser/MapParser";
+import { MapParser, parseFile } from "../parser/MapParser";
 import Timer from "../utils/Timer";
-
-function parseFile(files: FileList | null): Promise<MapParser> {
-  if (files?.length === 1) {
-    const file = files.item(0) as File;
-
-    return file.arrayBuffer().then(async (buffer: ArrayBuffer) => {
-      let content = "";
-      new Uint8Array(buffer).forEach((byte: number) => {
-        content += String.fromCharCode(byte);
-      });
-
-      const parser = new MapParser();
-      await parser.parse(content);
-      return parser;
-    });
-  } else {
-    return new Promise((res, rej) => {
-      rej("provide one file!");
-      console.error(files);
-    });
-  }
-}
 
 type Props = {
   OnLoaded: (mapParser: MapParser) => void;

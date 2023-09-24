@@ -453,4 +453,26 @@ class MapParser extends ObjData {
   }
 }
 
-export { MapParser, ObjData };
+function parseFile(files: FileList | null): Promise<MapParser> {
+  if (files?.length === 1) {
+    const file = files.item(0) as File;
+
+    return file.arrayBuffer().then(async (buffer: ArrayBuffer) => {
+      let content = "";
+      new Uint8Array(buffer).forEach((byte: number) => {
+        content += String.fromCharCode(byte);
+      });
+
+      const parser = new MapParser();
+      await parser.parse(content);
+      return parser;
+    });
+  } else {
+    return new Promise((res, rej) => {
+      rej("provide one file!");
+      console.error(files);
+    });
+  }
+}
+
+export { MapParser, ObjData, parseFile };

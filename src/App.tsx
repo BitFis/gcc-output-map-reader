@@ -6,6 +6,7 @@ import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import { ObjData } from "./parser/MapParser";
 import DataView from "./ui/DataView";
 import { Routes, Route, Outlet } from "react-router-dom";
+import Downloader from "./ui/Downloader";
 
 function Layout() {
   return (
@@ -29,6 +30,7 @@ function Home() {
   return (
     <div>
       <OutputDrop OnLoaded={setData} />
+      <Downloader OnLoaded={setData} />
 
       <DataView data={data} />
     </div>
