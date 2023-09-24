@@ -6,9 +6,11 @@ name: Preview Page CI
 on:
   push:
     branches: [main]
+  #pull_request:
+  #  branches: [main]
+  #  types: [closed]
   pull_request:
-    branches: [main]
-    types: [closed]
+    types: [assigned, opened, synchronize, reopened]
 
 jobs:
   build:
@@ -23,6 +25,9 @@ jobs:
         with:
           name: build-artefact
           path: build
+      - name: Add Examples to GH Page
+        run: |
+          cp -r ./examples/ ./build/
       - name: Deploy as GH Page
         # You may pin to the exact commit or the version.
         # uses: Cecilapp/GitHub-Pages-deploy@f26df39a27b93cae2c6aac5e07fdc556e8770247
