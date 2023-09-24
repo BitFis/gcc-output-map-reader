@@ -16,6 +16,7 @@ import { TabContext, TabPanel } from "@mui/lab";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import ObjData from "./parser/MapParser";
 import Timer from "./utils/Timer";
+import Formatter from "./utils/Formatter";
 
 function a11yProps(index: number) {
   return {
@@ -47,27 +48,10 @@ const ModulesTableColumnsOrder = [
   "Size no .bss",
   {
     name: "Size",
-    formatter: (cell: TCell) => formatSize(cell as number),
+    formatter: (cell: TCell) => Formatter.Size(cell as number),
   },
   "Num of records",
 ];
-
-const formatSize = (size: number) => {
-  const all = size;
-  const B = size % 1000;
-  size -= B;
-  const KB = Math.floor((size / 1000) % 1000);
-  size -= KB;
-  const MB = Math.floor(size / 1000 / 1000);
-
-  if (MB > 0) {
-    return `${all} (+${MB}M)`;
-  }
-  if (KB > 0) {
-    return `${all} (+${KB}K)`;
-  }
-  return `${all}`;
-};
 
 type AllTableColumns = {
   Section: string;
@@ -86,7 +70,7 @@ const AllTableColumnsOrder = [
   "AddressHex",
   {
     name: "Size",
-    formatter: (cell: TCell) => formatSize(cell as number),
+    formatter: (cell: TCell) => Formatter.Size(cell as number),
   },
   "Demangled Name",
   "Moduled Name",
