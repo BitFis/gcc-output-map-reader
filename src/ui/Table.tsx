@@ -1,6 +1,5 @@
 import { Grid } from "gridjs-react";
 import { OneDArray, TColumn } from "gridjs/dist/src/types";
-import { VFC } from "react";
 import "./Table.css";
 import { ArrayType } from "../utils/CommonTypes";
 
@@ -13,7 +12,7 @@ type Props = {
   columns: OneDArray<TColumn | string | ComponentChild>;
 };
 
-const Table: VFC<Props> = ({ data, columns }) => {
+const Table = ({ data, columns }: Props): JSX.Element => {
   return (
     <div>
       <Grid

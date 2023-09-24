@@ -1,6 +1,5 @@
 import { TCell } from "gridjs/dist/src/types";
 import Formatter from "../../utils/Formatter";
-import { VFC } from "react";
 import Table, { ArrayType } from "../Table";
 
 type ModulesTableColumns = {
@@ -23,7 +22,7 @@ type DataProps = {
   data: ArrayType[][];
 };
 
-const ModulesAll: VFC<DataProps> = ({ data }) => {
+const ModulesAll = ({ data }: DataProps): JSX.Element => {
   return <Table data={data} columns={ModulesTableColumnsOrder} />;
 };
 

@@ -1,5 +1,5 @@
-import { Alert, AlertTitle, Box, Button } from "@material-ui/core";
-import { useState, VFC } from "react";
+import { Alert, AlertTitle, Box, Button } from "@mui/material";
+import { useState } from "react";
 import { FileDrop } from "react-file-drop";
 import { useFilePicker } from "use-file-picker";
 import { MapParser } from "../parser/MapParser";
@@ -31,7 +31,7 @@ type Props = {
   OnLoaded: (mapParser: MapParser) => void;
 };
 
-const OutputDrop: VFC<Props> = ({ OnLoaded }) => {
+const OutputDrop = ({ OnLoaded }: Props): JSX.Element => {
   const [filesContent, errors, openFileSelector, loading] = useFilePicker({
     multiple: false,
     // accept: '.ics,.pdf',

@@ -1,9 +1,9 @@
-import { SyntheticEvent, VFC, useEffect, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 import { ObjData } from "../parser/MapParser";
 import Timer from "../utils/Timer";
 import Table, { TableContentType } from "./Table";
 import { TabContext, TabPanel } from "@mui/lab";
-import { Box, Tab, Tabs } from "@material-ui/core";
+import { Box, Tab, Tabs } from "@mui/material";
 import { AllTableColumns, AllTableColumnsOrder, TablesAll } from "./tables/All";
 import {
   ModulesTableColumns,
@@ -35,7 +35,7 @@ class DataTableArray<T extends Record<string, TableContentType>> {
   }
 }
 
-const DataView: VFC<Props> = ({ data }) => {
+const DataView = ({ data }: Props): JSX.Element => {
   const [value, setValue] = useState("all");
 
   const [allData, setAllData] = useState<TableContentType[][]>([]);

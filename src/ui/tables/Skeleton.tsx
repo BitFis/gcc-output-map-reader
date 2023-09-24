@@ -1,7 +1,6 @@
-import { Skeleton } from "@material-ui/core";
-import { VFC } from "react";
+import { Skeleton } from "@mui/material";
 
-const TableSkeleton: VFC = () => {
+const TableSkeleton = (): JSX.Element => {
   return (
     <div>
       <Skeleton animation={false} height={64} />
