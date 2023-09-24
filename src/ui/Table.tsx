@@ -1,18 +1,18 @@
 import { Grid } from "gridjs-react";
 import { OneDArray, TColumn } from "gridjs/dist/src/types";
-import { VFC } from "react";
 import "./Table.css";
-
-type ArrayType = string | number;
+import { ArrayType } from "../utils/CommonTypes";
 
 type ComponentChild = string | number | bigint | boolean | null | undefined;
+
+type TableContentType = string | number;
 
 type Props = {
   data: ArrayType[][];
   columns: OneDArray<TColumn | string | ComponentChild>;
 };
 
-const Table: VFC<Props> = ({ data, columns }) => {
+const Table = ({ data, columns }: Props): JSX.Element => {
   return (
     <div>
       <Grid
@@ -33,4 +33,5 @@ const Table: VFC<Props> = ({ data, columns }) => {
     </div>
   );
 };
+export type { TableContentType, ArrayType };
 export default Table;

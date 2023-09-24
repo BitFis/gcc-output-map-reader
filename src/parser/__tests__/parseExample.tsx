@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import MapParser from "../MapParser";
+import { MapParser } from "../MapParser";
 import expectedResult from "../../../examples/expected_a_hallo_cmake_sections.json";
 
 // changed, value of .init_array => issue parsing address without size
