@@ -3,3 +3,4 @@ build
 
 # ignore created files
 src/reportWebVitals.js
+config-overrides.js

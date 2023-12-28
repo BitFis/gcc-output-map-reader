@@ -24,10 +24,11 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "build:wasm": "cd wasm && wasm-pack build --target web --out-dir pkg",
     "package": "rm -rf build/pkg && rm -rf build/gcc-output-map-web-renderer.zip && PUBLIC_URL='.' GENERATE_SOURCEMAP=false BUILD_PATH='build/pkg' react-scripts build && cd build/pkg && zip -r ../gcc-output-map-web-renderer.zip ./* && rm -rf build/pkg",
-    "test": "react-scripts test",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject",
     "format": "prettier --write . !build",
     "lint": "yarn eslint . --ext .js,.jsx,.ts,.tsx",
@@ -63,8 +64,10 @@
     "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^4.21.0",
     "@typescript-eslint/parser": "^4.21.0",
+    "@wasm-tool/wasm-pack-plugin": "^1.7.0",
     "eslint": "^7.23.0",
     "eslint-config-prettier": "^8.1.0",
-    "prettier": "2.2.1"
+    "prettier": "2.2.1",
+    "react-app-rewired": "^2.2.1"
   }
 }
