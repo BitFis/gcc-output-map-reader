@@ -53,7 +53,7 @@ wasm-pack build
 > Ensure firefox and chrome + chromedriver are installed
 
 ```
-wasm-pack test --headless --firefox
+wasm-pack test --headless --chrome --chromedriver $(which chromedriver)
 ```
 
 #### Install chrome & chromedriver (linux)
