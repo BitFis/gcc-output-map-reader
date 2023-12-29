@@ -6,17 +6,21 @@
     "dockerfile": "Dockerfile",
     // Update 'VARIANT' to pick a Node version: 10, 12, 14
     "args": {
-      "VARIANT": "16"
+      "VARIANT": "16",
+      "RUSTUP_VERSION": "1.26.0"
     }
   },
 
-  // Set *default* container specific settings.json values on container create.
-  "settings": {
-    "terminal.integrated.shell.linux": "/bin/bash"
-  },
-
   // Add the IDs of extensions you want installed when the container is created.
-  "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "1YiB.rust-bundle"
+      ]
+    }
+  },
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
