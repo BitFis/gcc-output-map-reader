@@ -50,11 +50,13 @@ wasm-pack build
 
 ### Test in Headless Browsers with `wasm-pack test`
 
-> TBD. currently does not work
+> Ensure firefox and chrome + chromedriver are installed
 
 ```
 wasm-pack test --headless --firefox
 ```
+
+#### Install chrome & chromedriver (linux)
 
 ### Publish to NPM with `wasm-pack publish`
 
