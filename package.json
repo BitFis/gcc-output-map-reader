@@ -30,6 +30,7 @@
     "package": "rm -rf build/pkg && rm -rf build/gcc-output-map-web-renderer.zip && PUBLIC_URL='.' GENERATE_SOURCEMAP=false BUILD_PATH='build/pkg' react-app-rewired build && cd build/pkg && zip -r ../gcc-output-map-web-renderer.zip ./* && rm -rf build/pkg",
     "test": "react-app-rewired test",
     "test:wasm": "cd src/wasm && wasm-pack test --headless --chromedriver $(which chromedriver) --chrome",
+    "watch:wasm": "cd src/wasm &&  cargo watch -i .gitignore -i \"pkg/*\" -s \"wasm-pack test --headless --chromedriver $(which chromedriver) --chrome\"",
     "eject": "react-scripts eject",
     "format": "prettier --write . !build",
     "lint": "yarn eslint . --ext .js,.jsx,.ts,.tsx",
