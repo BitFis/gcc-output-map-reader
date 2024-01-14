@@ -3,3 +3,7 @@ build
 
 # ignore created files
 src/reportWebVitals.js
+config-overrides.js
+
+src/wasm/pkg
+src/wasm/target

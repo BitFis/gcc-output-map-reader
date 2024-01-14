@@ -1,0 +1,9 @@
+{
+  "name": "wasm",
+  "version": "0.0.1",
+  "description": "`elf` and gcc `.map` decoder written in rust with wasm.",
+  "main": "index.js",
+  "repository": "https://github.com/BitFis/gcc-output-map-web-renderer",
+  "author": "Lucien Zuercher",
+  "license": "MIT"
+}

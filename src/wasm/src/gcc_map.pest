@@ -1,0 +1,62 @@
+// hexadecimal address
+hex       =  { ASCII_HEX_DIGIT+ }
+hex_value = _{ "0x" ~ hex }
+
+// miscellaneous
+white_space      = _{ " "+ }
+space_or_newline = _{ (" " | NEWLINE)+ }
+end_of_line      = _{ (!NEWLINE ~ ANY)+ }
+
+// archive
+archive_path = { (!NEWLINE ~ ANY)+ }
+
+// define memory related symbols
+memory_address_start = { hex_value }
+memory_size          = { hex_value }
+section_name         = { ("." | ASCII_ALPHANUMERIC | "_" | "-")+ }
+sub_section_name     = { ("." | ASCII_ALPHANUMERIC | "_" | "-")+ }
+
+// symbol sub section entries
+section_entry_name = {
+    !"0x" ~ (!NEWLINE ~ ANY)+
+}
+section_entry      = {
+    space_or_newline ~ memory_address_start ~ white_space ~ section_entry_name
+}
+section_entries    = {
+    section_entry+
+}
+// symbol sub section
+sub_section         = {
+    // section
+    sub_section_name ~ NEWLINE? ~ white_space ~ memory_address_start ~ white_space ~ memory_size ~ white_space ~ archive_path ~ section_entries?
+}
+pointer_sub_section = { "*(." ~ (!NEWLINE ~ ANY)+ }
+sub_sections        = { (NEWLINE* ~ " "+ ~ (sub_section | pointer_sub_section))* }
+// symbol section
+section = {
+    // .[section]	0x[address]   0x[size]
+    section_name ~ NEWLINE? ~ white_space ~ memory_address_start ~ white_space ~ memory_size ~  // .[subsection]
+  sub_sections
+}
+
+// memory section
+memory_table_h1     = _{ "[!provide]" }
+memory_table_h2     = _{ "PROVIDE" ~ (!NEWLINE ~ ANY)+ }
+memory_table_header = _{
+    // [!provide]       PROVIDE (.*)
+    white_space ~ memory_table_h1 ~ white_space ~ memory_table_h2 ~ NEWLINE ~ (" ")+ ~ memory_address_start ~ white_space ~ end_of_line
+}
+memory_table        =  {
+    memory_table_header ~ (NEWLINE+ ~ section)* ~ space_or_newline+ ~ EOI
+}
+
+// Linker script and memory map
+// tbd.
+
+// Cross Reference Table
+// tbd.
+
+main = {
+    SOI ~ memory_table ~ EOI
+}

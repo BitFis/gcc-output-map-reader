@@ -15,8 +15,29 @@ jobs:
           # for 18.x version, set following:
           # export NODE_OPTIONS=--openssl-legacy-provider
           node-version: 16.x
+      - name: Use Rust stable
+        uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: stable
+      - run: echo $PATH
+      - run: >
+          mkdir -p /opt/google/chrome/ \
+            && cd /opt/google/chrome/ \
+            && curl -L --proto '=https' --tlsv1.2 --output /tmp/chromedriver.zip \
+            "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.109/linux64/chromedriver-linux64.zip" \
+            && unzip /tmp/chromedriver.zip \
+            && rm /tmp/chromedriver.zip \
+            && ln -sf /opt/google/chrome/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver \
+            && curl -L --proto '=https' --tlsv1.2 --output /tmp/chrome.zip \
+            "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.109/linux64/chrome-linux64.zip" \
+            && unzip /tmp/chrome.zip \
+            && ln -sf /opt/google/chrome/chrome-linux64/chrome /usr/local/bin/google-chrome-stable \
+            && ln -sf /usr/local/bin/google-chrome-stable /usr/local/bin/google-chrome \
+            && rm /tmp/chrome.zip
+      - run: cargo install wasm-pack
       - run: yarn
         # use the deploy env file
+      - run: yarn test:wasm
       - run: cp .env.deploy .env
       - run: yarn check-format
       - run: yarn lint

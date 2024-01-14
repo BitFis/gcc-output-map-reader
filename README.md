@@ -36,6 +36,23 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+## Create output.Map
+
+Currently supported .Map file format:
+
+| Linker                                                      | Command                                               | Support                                 |
+| ----------------------------------------------------------- | ----------------------------------------------------- | --------------------------------------- |
+| \(Default\) [`bfd`](https://www.gnu.org/software/binutils/) | `gcc main.cpp -fuse-ld=bfd -Wl,-Map=output_bfd.map`   | :heavy_check_mark: (tested: gcc v8.3.0) |
+| [`gold`](https://www.gnu.org/software/binutils/)            | `gcc main.cpp -fuse-ld=gold -Wl,-Map=output_gold.map` | :x:                                     |
+| [`ldd`](https://lld.llvm.org/)                              | `gcc main.cpp -fuse-ld=ldd -Wl,-Map=output_ldd.map`   | :x:                                     |
+| [`mold`](https://github.com/rui314/mold)                    | `gcc main.cpp -fuse-ld=mold -Wl,-Map=output_mold.map` | :x:                                     |
+
+### Add Decode Support
+
+Decoding of the map file are done via rust [pest](https://pest.rs/#editor).
+A custom pest file can be created in `src/wasm/src/*.pest` and expand the `lib.rs`
+accordingly.
+
 ## References
 
 > updated 10.4.2020
@@ -59,3 +76,7 @@ others:
 - [MapFileParser - python (current)](https://github.com/ofthedove/MapFileParser)
 - [MapViewer - python (MIT | last update 2017)](https://github.com/alphaFred/MapViewer/tree/master/MapViewer)
 - [pymapfile - python (no readme | last update 2016)](https://github.com/pfalcon/pymapfile)
+
+understanding map files:
+
+- [interrupt - Get the most out of the linker map file](https://interrupt.memfault.com/blog/get-the-most-out-of-the-linker-map-file)
